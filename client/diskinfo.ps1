@@ -1,10 +1,15 @@
 <#
+.DESCRIPTION
+Gets information on primary local disk on Windows running PowerShell 5.1 or better, or Ubuntu running PowerShell 7.
+#>
+
+<#
 References
 https://devblogs.microsoft.com/scripting/powertip-use-powershell-to-round-to-specific-decimal-place/
 #>
 
-if($PSVersionTable.OS -match 'Windows'){
-    $Disk = powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy RemoteSigned -Command {Get-WmiObject Win32_LogicalDisk -Filter "DeviceID='$env:SystemDrive'" | Select-Object Name,Size,FreeSpace}
+if($PSVersionTable.OS -notmatch 'Linux'){
+    $Disk = powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy RemoteSigned -Command {Get-CimInstance -ClassName Win32_LogicalDisk -Filter "DeviceID='$env:SystemDrive'" | Select-Object Name,Size,FreeSpace}
     $Size = $Disk.Size / 1GB
     $Used = ($Disk.Size - $Disk.FreeSpace) / 1GB
     $Avail = $Disk.FreeSpace / 1GB
