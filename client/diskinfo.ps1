@@ -1,6 +1,9 @@
 <#
 .DESCRIPTION
 Gets information on primary local disk on Windows running PowerShell 5.1 or better, or Ubuntu running PowerShell 7.
+
+For Windows, we need to access PowerShell 5.1 for CimInstance and look for the system drive.
+For Linux we use df to get all disk info, but only report on the disk mounted at the root.
 #>
 
 <#
