@@ -1,3 +1,7 @@
+param(
+    [string]$Uri
+)
+
 $Body = @{
     Name = $(hostname)
     OS = $($PSVersionTable.OS)
@@ -12,9 +16,9 @@ $Body = @{
 }
 
 $Splat = @{
-    Uri = 'http://davidsteimle.net:8082/api/sysinfo'
+    Uri = $Uri
     Body = $($Body | ConvertTo-Json)
     Method = 'Put'
 }
 
-# Invoke-RestMethod @Splat
+$Splat
