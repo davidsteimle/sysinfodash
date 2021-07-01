@@ -21,4 +21,4 @@ $Splat = @{
     Method = 'Put'
 }
 
-$Splat
+Invoke-RestMethod @Splat
