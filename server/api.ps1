@@ -47,9 +47,7 @@ New-PolarisRoute -Path "/api/sysinfo" -Method PUT -Scriptblock {
             [string]$Table,
             [string]$Name
         )
-        $x = "SELECT * FROM $Table WHERE Name='$Name';"
-        # Out-File $x -Path ./fucking.what
-        $x
+        "SELECT * FROM $Table WHERE Name='$Name';"
     }
     function New-SysinfoSystem{
         param(
@@ -88,19 +86,17 @@ New-PolarisRoute -Path "/api/sysinfo" -Method PUT -Scriptblock {
             OS='$($NewData.OS)',
             LastBoot='$($NewData.LastBoot)',
             LastContact='$(Get-Date -Format s)',
-            DiskSize='$($NewData.DiskSize)',
-            DiskUsed='$($NewData.DiskUsed)',
-            DiskAvail='$($NewData.DiskAvail)',
-            DiskUsedPer'$($NewData.DiskUsedPer)',
-            DiskMount'$($NewData.DiskMount)'
-        WHERE Id='$($ThisSystem.Id)';"
+            DiskSize=$($NewData.DiskSize),
+            DiskUsed=$($NewData.DiskUsed),
+            DiskAvail=$($NewData.DiskAvail),
+            DiskUsedPer=$($NewData.DiskUsedPer),
+            DiskMount='$($NewData.DiskMount)'
+        WHERE Id=$($ThisSystem.Id);"
     }
     Invoke-SQLiteQuery -DataSource $DatabaseFile -Query (New-SysinfoTable -Table $Table)
-    # $ThisSystem = Invoke-SQLiteQuery -DataSource $DatabaseFile -Query (Test-SysinfoSystem -Table $Table -Name $ThisRequest.Name)
-    $ThisSystem = Invoke-SQLiteQuery -DataSource $DatabaseFile -Query "SELECT * FROM $Table WHERE Name='$($ThisRequest.Name)';"
-    $ThisSystem = Invoke-SQLiteQuery -DataSource $DatabaseFile -Query (Test-SysinfoSystem -Table $Table -Name $ThisRequest.Name)
+    $ThisSystem = Invoke-SqliteQuery -DataSource $DatabaseFile -Query (Test-SysinfoSystem -Table $Table -Name $($ThisRequest.Name))
     if($ThisSystem){
-        Invoke-SQLiteQuery -DataSource $DatabaseFile -Query (New-SysinfoUpdate -Table $Table -ThisSystem $ThisSystem.Id -NewData $ThisRequest)
+        Invoke-SQLiteQuery -DataSource $DatabaseFile -Query (New-SysinfoUpdate -Table $Table -ThisSystem $ThisSystem -NewData $ThisRequest)
     } else {
         Invoke-SQLiteQuery -DataSource $DatabaseFile -Query (New-SysinfoSystem -Table $Table -ThisSystem $ThisRequest)
     }
