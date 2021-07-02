@@ -1,3 +1,5 @@
+#!/usr/bin/env powershell
+
 <#
 .DESCRIPTION
 Gets information on primary local disk on Windows running PowerShell 5.1 or better, or Ubuntu running PowerShell 7.
@@ -22,7 +24,7 @@ if($PSVersionTable.OS -notmatch 'Linux'){
         Size = $([math]::Round($Size,1))
         Used = $([math]::Round($Used,1))
         Avail = $([math]::Round($Avail,1))
-        UsedPer = $([math]::Round($UsedPer,1))
+        UsedPer = $([int32]$UsedPer)
         MountedOn = $($Disk.Name)
     }
 } else {
