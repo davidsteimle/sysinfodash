@@ -1,6 +1,11 @@
+#!/usr/bin/env powershell
+
 param(
     [string]$Uri
 )
+
+$MyDiskInfo = Join-Path $PSScriptRoot -ChildPath "diskinfo.ps1"
+$DiskInfo = & $MyDiskInfo
 
 $Body = @{
     Name = $(hostname)
@@ -12,12 +17,16 @@ $Body = @{
             $((uptime -s) | Get-Date -Format s)
         }
     )
-    DiskInfo = $(./diskinfo.ps1)
+    DiskSize = $DiskInfo.Size
+    DiskUsed = $DiskInfo.Used
+    DiskAvail = $DiskInfo.Avail
+    DiskUsedPer = $DiskInfo.UsedPer
+    DiskMount = $DiskInfo.MountedOn
 }
 
 $Splat = @{
     Uri = $Uri
-    Body = $($Body | ConvertTo-Json)
+    Body = $($Body | ConvertTo-Json -Depth 5)
     Method = 'Put'
 }
 
