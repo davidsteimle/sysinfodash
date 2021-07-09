@@ -10,8 +10,13 @@ $DatabaseFile = './data/sysinfo.db'
 $Table = 'sysinfo'
 
 New-PolarisRoute -Path "/api/systems" -Method GET -Scriptblock{
-    $GetTable = Invoke-SQLiteQuery -DataSource $script:DatabaseFile -Query "SELECT * FROM $script:Table;"
+    $GetTable = Invoke-SQLiteQuery -DataSource $DatabaseFile -Query "SELECT * FROM $Table;"
     $Response.Json(($GetTable | ConvertTo-Json))
+}
+
+New-PolarisRoute -Path "/api/systems/:name" -Method GET -Scriptblock {
+    $System = Invoke-SQLiteQuery -DataSource $DatabaseFile -Query "SELECT * FROM $Table WHERE Name='$($Request.Parameters.Name)';"
+    $Response.Json(($System | ConvertTo-Json))
 }
 
 New-PolarisRoute -Path "/api/sysinfo" -Method PUT -Scriptblock {
