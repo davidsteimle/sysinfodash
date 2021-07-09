@@ -9,6 +9,10 @@ Import-Module PSSQLite
 $DatabaseFile = './data/sysinfo.db'
 $Table = 'sysinfo'
 
+New-PolarisGetRoute -Path "/api/test" -Method GET -Scriptblock {
+    $Response.Send("`$DatabaseFile = './data/sysinfo.db'");
+}
+
 New-PolarisRoute -Path "/api/systems" -Method GET -Scriptblock{
     $GetTable = Invoke-SQLiteQuery -DataSource $DatabaseFile -Query "SELECT * FROM $Table;"
     $Response.Json(($GetTable | ConvertTo-Json))
