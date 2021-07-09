@@ -2,7 +2,7 @@ FROM mcr.microsoft.com/powershell:latest
 
 SHELL ["pwsh", "-Command"]
 
-RUN Install-Module UniversalDashboard.Community -AcceptLicense
+RUN Install-Module UniversalDashboard.Community -AcceptLicense -Force
 
 COPY dash.ps1 dash.ps1
 
