@@ -12,7 +12,7 @@ New-PolarisRoute -Path "/api/sysinfo" -Method PUT -Scriptblock {
     [pscustomobject]$ThisRequest = @{
         Name = $Request.Body.Name
         OS = $Request.Body.OS
-        LastBoot = $Request.Body.LastBoot
+        LastBoot = $($Request.Body.LastBoot | Get-Date -Format s)
         LastContact = $(Get-Date -Format s)
         DiskSize = $Request.Body.DiskSize
         DiskUsed = $Request.Body.DiskUsed
