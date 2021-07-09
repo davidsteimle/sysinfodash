@@ -26,7 +26,7 @@ New-UdGrid -Title "System Information" -Headers @("Name", "OS", "Disk Info", "La
             [myquery]@{
                 Name = $PSItem.Name
                 OS = $PSItem.OS
-                DiskInfo = $("$($PSItem.DiskUsed) used of $($PSItem.DiskSize) total ($($PSItem.DiskUsedPer)%)")
+                DiskInfo = $("$($PSItem.DiskUsed)GB used of $($PSItem.DiskSize)GB total ($($PSItem.DiskUsedPer)%)")
                 LastBoot = $PSItem.LastBoot
                 DaysUp = $(((Get-Date) - $($PSItem.LastBoot | Get-Date)).Days)
                 LastContact = $PSItem.LastContact
