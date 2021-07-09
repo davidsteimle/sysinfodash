@@ -10,7 +10,7 @@ $Table = 'sysinfo'
 $BaseQuery = "SELECT * FROM $Table;"
 
 # https://docs.universaldashboard.io/components/grids
-New-UdGrid -Title "System Information" -Headers @("Name", "OS", "Disk Info", "Last Boot", "Days Up", "Last Contact") -Properties @("Name", "OS", "DiskInfo", "LastBoot", "DaysUp" "LastContact") -AutoRefresh -RefreshInterval 60 -Endpoint {
+New-UdGrid -Title "System Information" -Headers @("Name", "OS", "Disk Info", "Last Boot", "Days Up", "Last Contact") -Properties @("Name", "OS", "DiskInfo", "LastBoot", "DaysUp", "LastContact") -AutoRefresh -RefreshInterval 60 -Endpoint {
     $InfoPull = Invoke-SqliteQuery -DataSource $DatabaseFile -Query $BaseQuery
     class myquery {
         [string]$Name
