@@ -6,6 +6,14 @@ param(
 Import-Module Polaris
 Import-Module PSSQLite
 
+$DatabaseFile = './data/sysinfo.db'
+$Table = 'sysinfo'
+
+New-PolarisRoute -Path "/api/systems" -Method GET -Scriptblock{
+    $GetTable = Invoke-SQLiteQuery -DataSource $script:DatabaseFile -Query "SELECT * FROM $script:Table;"
+    $Response.Json(($GetTable | ConvertTo-Json))
+}
+
 New-PolarisRoute -Path "/api/sysinfo" -Method PUT -Scriptblock {
     $Response.Json(($Request | ConvertTo-Json -Depth 15))
 
@@ -21,13 +29,11 @@ New-PolarisRoute -Path "/api/sysinfo" -Method PUT -Scriptblock {
         DiskMount = $Request.Body.DiskMount
     }
 
-    $DatabaseFile = './data/sysinfo.db'
-    $Table = 'sysinfo'
     function New-SysinfoTable{
         param(
-            [string]$Table
+            [string]$script:Table
         )
-        "CREATE TABLE IF NOT EXISTS $Table (
+        "CREATE TABLE IF NOT EXISTS $script:Table (
         Id INTEGER PRIMARY KEY,
         Name TEXT NOT NULL,
         OS TEXT NOT NULL,
@@ -44,17 +50,17 @@ New-PolarisRoute -Path "/api/sysinfo" -Method PUT -Scriptblock {
     function Test-SysinfoSystem{
         [CmdletBinding ()]
         param(
-            [string]$Table,
+            [string]$script:Table,
             [string]$Name
         )
-        "SELECT * FROM $Table WHERE Name='$Name';"
+        "SELECT * FROM $script:Table WHERE Name='$Name';"
     }
     function New-SysinfoSystem{
         param(
-            [string]$Table,
+            [string]$script:Table,
             [PSCustomObject]$ThisSystem
         )
-        "INSERT INTO $Table (
+        "INSERT INTO $script:Table (
             Name,
             OS,
             LastBoot,
@@ -78,11 +84,11 @@ New-PolarisRoute -Path "/api/sysinfo" -Method PUT -Scriptblock {
     }
     function New-SysinfoUpdate{
         param(
-            [string]$Table,
+            [string]$script:Table,
             [PSCustomObject]$ThisSystem,
             [PSCustomObject]$NewData
         )
-        "UPDATE $Table SET
+        "UPDATE $script:Table SET
             OS='$($NewData.OS)',
             LastBoot='$($NewData.LastBoot)',
             LastContact='$(Get-Date -Format s)',
