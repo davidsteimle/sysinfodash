@@ -12,7 +12,7 @@ $Body = @{
     OS = $($PSVersionTable.OS)
     LastBoot = $(
         if($PSVersionTable.OS -match 'Windows'){
-            $((Get-Date).AddDays(-$((uptime).TotalDays)) | Get-Date -Format s)
+            $((Get-Date).AddDays(-$((uptime).TotalDays)).ToUniversalTime() | Get-Date -Format s)
         } else {
             $((uptime -s) | Get-Date -Format s)
         }
