@@ -14,7 +14,9 @@ $Body = @{
         if($PSVersionTable.OS -match 'Windows'){
             $((Get-Date).AddDays(-$((uptime).TotalDays)).ToUniversalTime() | Get-Date -Format s)
         } else {
-            $((uptime -s) | Get-Date -Format s)
+            $Uptime = $((uptime -s) | Get-Date)
+            $Uptime = $Uptime.ToUniversalTime() | Get-Date -Format s
+            $Uptime
         }
     )
     DiskSize = $DiskInfo.Size
