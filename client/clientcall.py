@@ -5,6 +5,7 @@ import re
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
+import requests
 
 body = {
     'name': '',
@@ -91,4 +92,10 @@ body['diskmounted'] = match.group(6)
 #}
 
 
-print(body)
+#print(body)
+
+r = requests.put('https://httpbin.org / put', data ={'key':'value'})
+
+print(r)
+
+print(r.content)
