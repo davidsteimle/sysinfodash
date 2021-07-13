@@ -66,4 +66,29 @@ print(lastboot)
 
 body['lastboot'] = str(lastboot)
 
+regex = r"^(?P<filesystem>\S{1,})\s{1,}(?P<blocks>\S{1,})\s{1,}(?P<used>\S{1,})\s{1,}(?P<available>\S{1,})\s{1,}(?P<usedper>\S{1,})\s{1,}(?P<mountedon>\/)$"
+
+test_str = os.popen("df").read()
+
+matches = re.finditer(regex, test_str, re.MULTILINE)
+
+for matchNum, match in enumerate(matches, start=1):
+
+#    print ("Match {matchNum} was found at {start}-{end}: {match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
+
+    for groupNum in range(0, len(match.groups())):
+        groupNum = groupNum + 1
+
+#        print ("Group {groupNum} found at {start}-{end}: {group}".format(groupNum = groupNum, start = match.start(groupNum), end = match.end(groupNum), group = match.group(groupNum)))
+
+#body = {
+body['filesystem'] = match.group(1),
+body['disksize'] = match.group(2),
+body['diskused'] = match.group(3),
+body['diskavail'] = match.group(4),
+body['diskusedper'] = (match.group(5)).replace("%",""),
+body['diskmounted'] = match.group(6)
+#}
+
+
 print(body)
