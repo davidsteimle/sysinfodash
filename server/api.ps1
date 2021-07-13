@@ -1,109 +1,67 @@
-[CmdletBinding ()]
-param(
-    [int32]$Port
-)
+import os
+import re
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
 
-Import-Module Polaris
-Import-Module PSSQLite
-
-New-PolarisRoute -Path "/api/sysinfo" -Method PUT -Scriptblock {
-    $Response.Json(($Request | ConvertTo-Json -Depth 15))
-
-    [pscustomobject]$ThisRequest = @{
-        Name = $Request.Body.Name
-        OS = $Request.Body.OS
-        LastBoot = $($Request.Body.LastBoot | Get-Date -Format s)
-        LastContact = $(Get-Date -Format s)
-        DiskSize = $Request.Body.DiskSize
-        DiskUsed = $Request.Body.DiskUsed
-        DiskAvail = $Request.Body.DiskAvail
-        DiskUsedPer = $Request.Body.DiskUsedPer
-        DiskMount = $Request.Body.DiskMount
-    }
-
-    $DatabaseFile = './data/sysinfo.db'
-    $Table = 'sysinfo'
-    function New-SysinfoTable{
-        param(
-            [string]$Table
-        )
-        "CREATE TABLE IF NOT EXISTS $Table (
-        Id INTEGER PRIMARY KEY,
-        Name TEXT NOT NULL,
-        OS TEXT NOT NULL,
-        LastBoot TEXT NOT NULL,
-        LastContact TEXT NOT NULL,
-        DiskSize FLOAT,
-        DiskUsed FLOAT,
-        DiskAvail FLOAT,
-        DiskUsedPer INT,
-        DiskMount TEXT,
-        CONSTRAINT Name_Unique UNIQUE (Name)
-        );"
-    }
-    function Test-SysinfoSystem{
-        [CmdletBinding ()]
-        param(
-            [string]$Table,
-            [string]$Name
-        )
-        "SELECT * FROM $Table WHERE Name='$Name';"
-    }
-    function New-SysinfoSystem{
-        param(
-            [string]$Table,
-            [PSCustomObject]$ThisSystem
-        )
-        "INSERT INTO $Table (
-            Name,
-            OS,
-            LastBoot,
-            LastContact,
-            DiskSize,
-            DiskUsed,
-            DiskAvail,
-            DiskUsedPer,
-            DiskMount
-        ) VALUES (
-            '$($ThisSystem.Name)',
-            '$($ThisSystem.OS)',
-            '$($ThisSystem.LastBoot)',
-            '$(Get-Date -Format s)',
-            '$($ThisSystem.DiskSize)',
-            '$($ThisSystem.DiskUsed)',
-            '$($ThisSystem.DiskAvail)',
-            '$($ThisSystem.DiskUsedPer)',
-            '$($ThisSystem.DiskMount)'
-        );"
-    }
-    function New-SysinfoUpdate{
-        param(
-            [string]$Table,
-            [PSCustomObject]$ThisSystem,
-            [PSCustomObject]$NewData
-        )
-        "UPDATE $Table SET
-            OS='$($NewData.OS)',
-            LastBoot='$($NewData.LastBoot)',
-            LastContact='$(Get-Date -Format s)',
-            DiskSize=$($NewData.DiskSize),
-            DiskUsed=$($NewData.DiskUsed),
-            DiskAvail=$($NewData.DiskAvail),
-            DiskUsedPer=$($NewData.DiskUsedPer),
-            DiskMount='$($NewData.DiskMount)'
-        WHERE Id=$($ThisSystem.Id);"
-    }
-    Invoke-SQLiteQuery -DataSource $DatabaseFile -Query (New-SysinfoTable -Table $Table)
-    $ThisSystem = Invoke-SqliteQuery -DataSource $DatabaseFile -Query (Test-SysinfoSystem -Table $Table -Name $($ThisRequest.Name))
-    if($ThisSystem){
-        Invoke-SQLiteQuery -DataSource $DatabaseFile -Query (New-SysinfoUpdate -Table $Table -ThisSystem $ThisSystem -NewData $ThisRequest)
-    } else {
-        Invoke-SQLiteQuery -DataSource $DatabaseFile -Query (New-SysinfoSystem -Table $Table -ThisSystem $ThisRequest)
-    }
+body = {
+    'name': '',
+    'os': '',
+    'lastboot': '',
+    'disksize': '',
+    'diskused': '',
+    'diskavail': '',
+    'diskusedper': '',
+    'diskmount': ''
 }
 
-$app = Start-Polaris -port $Port -MinRunspaces 1 -MaxRunspaces 5 -UseJsonBodyParserMiddleware -Verbose
+body['name'] = str(os.popen('hostname').read()[:-1])
+myos = os.popen("grep '^PRETTY_NAME' /etc/os-release").read()[:-1]
+print(myos)
+match = re.search('(?P<myname>.*)=(?P<myvalue>.*)', myos)
+myos = match.group('myvalue')
+myos = myos.replace('"','')
+body['os'] = myos
 
-while($app.Listener.IsListening){
-    Wait-Event callbackcomplete
+uptimeraw = os.popen('uptime -p').read()[:-1]
+uptimereplace = uptimeraw.replace("up ","",1)
+uptimereplace = uptimereplace.replace(", ",",")
+uptimereplace = uptimereplace.replace("months","month",1)
+uptimereplace = uptimereplace.replace("weeks","week",1)
+uptimereplace = uptimereplace.replace("days","day",1)
+uptimereplace = uptimereplace.replace("minutes","minute",1)
+uptimereplace = uptimereplace.replace("month","months",1)
+uptimereplace = uptimereplace.replace("week","weeks",1)
+uptimereplace = uptimereplace.replace("day","days",1)
+uptimereplace = uptimereplace.replace("minute","minutes",1)
+uptimelist = uptimereplace.split(",")
+# print(uptimelist)
+uptimedict = {
+    'months': 0,
+    'weeks': 0,
+    'days': 0,
+    'hours': 0,
+    'minutes': 0
 }
+for x in uptimelist:
+    match = re.search('(?P<myvalue>.*) (?P<myname>.*)', x)
+    uptimedict[match.group('myname')] = match.group('myvalue')
+
+uptimetotalminutes = int(0)
+uptimetotalminutes += int(uptimedict['minutes'])
+uptimetotalminutes += int(uptimedict['hours']) * 60
+uptimetotalminutes += int(uptimedict['days']) * 24 * 60
+uptimetotalminutes += int(uptimedict['weeks']) * 7 * 24 * 60
+uptimetotalminutes += int(uptimedict['months']) * 30 * 24 * 60
+
+print(uptimedict)
+print(uptimetotalminutes)
+
+rightnow = datetime.now(timezone.utc)
+print(rightnow)
+lastboot = rightnow - timedelta(minutes = uptimetotalminutes)
+print(lastboot)
+
+body['lastboot'] = str(lastboot)
+
+print(body)
