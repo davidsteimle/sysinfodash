@@ -1,6 +1,30 @@
 #!/usr/bin/python3
 
 import os
+import re
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
+
+body = {
+    'name': '',
+    'os': '',
+    'lastboot': '',
+    'disksize': '',
+    'diskused': '',
+    'diskavail': '',
+    'diskusedper': '',
+    'diskmount': ''
+}
+
+body['name'] = str(os.popen('hostname').read()[:-1])
+myos = os.popen("grep '^PRETTY_NAME' /etc/os-release").read()[:-1]
+print(myos)
+match = re.search('(?P<myname>.*)=(?P<myvalue>.*)', myos)
+myos = match.group('myvalue')
+myos = myos.replace('"','')
+body['os'] = myos
+
 uptimeraw = os.popen('uptime -p').read()[:-1]
 uptimereplace = uptimeraw.replace("up ","",1)
 uptimereplace = uptimereplace.replace(", ",",")
@@ -21,7 +45,6 @@ uptimedict = {
     'hours': 0,
     'minutes': 0
 }
-import re
 for x in uptimelist:
     match = re.search('(?P<myvalue>.*) (?P<myname>.*)', x)
     uptimedict[match.group('myname')] = match.group('myvalue')
@@ -36,5 +59,11 @@ uptimetotalminutes += int(uptimedict['months']) * 30 * 24 * 60
 print(uptimedict)
 print(uptimetotalminutes)
 
+rightnow = datetime.now(timezone.utc)
+print(rightnow)
+lastboot = rightnow - timedelta(minutes = uptimetotalminutes)
+print(lastboot)
 
-from datetime import datetime, timedelta
+body['lastboot'] = str(lastboot)
+
+print(body)
