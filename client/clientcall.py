@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/env/python3
 
 import os
 import re
@@ -19,7 +19,7 @@ body = {
 
 body['name'] = str(os.popen('hostname').read()[:-1])
 myos = os.popen("grep '^PRETTY_NAME' /etc/os-release").read()[:-1]
-print(myos)
+#print(myos)
 match = re.search('(?P<myname>.*)=(?P<myvalue>.*)', myos)
 myos = match.group('myvalue')
 myos = myos.replace('"','')
@@ -56,13 +56,13 @@ uptimetotalminutes += int(uptimedict['days']) * 24 * 60
 uptimetotalminutes += int(uptimedict['weeks']) * 7 * 24 * 60
 uptimetotalminutes += int(uptimedict['months']) * 30 * 24 * 60
 
-print(uptimedict)
-print(uptimetotalminutes)
+#print(uptimedict)
+#print(uptimetotalminutes)
 
 rightnow = datetime.now(timezone.utc)
-print(rightnow)
+#print(rightnow)
 lastboot = rightnow - timedelta(minutes = uptimetotalminutes)
-print(lastboot)
+#print(lastboot)
 
 body['lastboot'] = str(lastboot)
 
