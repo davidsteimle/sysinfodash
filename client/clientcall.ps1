@@ -7,6 +7,19 @@ param(
 $MyDiskInfo = Join-Path $PSScriptRoot -ChildPath "diskinfo.ps1"
 $DiskInfo = & $MyDiskInfo
 
+<#
+if($PSVersionTable.OS -match "Windows"){
+    $OS = $PSVersionTable.OS
+} else {
+    $OS = grep '^PRETTY_NAME' /etc/os-release
+    if($OS -match '(?<Name>PRETTY_NAME=")(?<Value>.+)(?<Tail>")'){
+        $OS = $Matches.Value
+    } else {
+        $OS = $PSVersionTable.OS
+    }
+}
+#>
+
 $Body = @{
     Name = $(hostname)
     OS = $($PSVersionTable.OS)
