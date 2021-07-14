@@ -83,19 +83,35 @@ for matchNum, match in enumerate(matches, start=1):
 
 #        print ("Group {groupNum} found at {start}-{end}: {group}".format(groupNum = groupNum, start = match.start(groupNum), end = match.end(groupNum), group = match.group(groupNum)))
 
+def gb_conv(x):
+    gbconv = 1048576
+    result = float(x/gbconv)
+    result = (f'{result:.1f}')
+    return result
+
 #body = {
-gbconv = 1048576
-body['disksize'] = match.group(2),
-body['diskused'] = match.group(3),
-body['diskavail'] = match.group(4),
-body['diskusedper'] = (match.group(5)).replace("%",""),
-body['diskmounted'] = match.group(6)
+#body['filesystem'] = match.group(1),
+body['disksize'] = match.group(2)
+mytemp = int(body['disksize'])
+mygig = gb_conv(mytemp)
+body['disksize'] = mygig
+body['diskused'] = match.group(3)
+mytemp = int(body['diskused'])
+mygig = gb_conv(mytemp)
+body['diskused'] = mygig
+body['diskavail'] = match.group(4)
+mytemp = int(body['diskavail'])
+mygig = gb_conv(mytemp)
+body['diskavail'] = mygig
+body['diskusedper'] = (match.group(5)).replace("%","")
+body['diskmount'] = match.group(6)
 #}
 
 
 #print(body)
 bodyjson = json.dumps(body)
 print(bodyjson)
+
 #r = requests.put('https://davidsteimle.net:6000/api/sysinfo', data=body)
 
 #print(r)
