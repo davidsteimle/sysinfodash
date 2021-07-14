@@ -1,10 +1,11 @@
-#!/usr/env/python3
+#!/usr/bin/python3
 
 import os
 import re
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
+import json
 import requests
 
 body = {
@@ -93,9 +94,10 @@ body['diskmounted'] = match.group(6)
 
 
 #print(body)
+bodyjson = json.dumps(body)
+print(bodyjson)
+#r = requests.put('https://davidsteimle.net:6000/api/sysinfo', data=body)
 
-r = requests.put('https://httpbin.org / put', data ={'key':'value'})
+#print(r)
 
-print(r)
-
-print(r.content)
+#print(r.content)
