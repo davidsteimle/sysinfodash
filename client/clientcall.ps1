@@ -7,7 +7,6 @@ param(
 $MyDiskInfo = Join-Path $PSScriptRoot -ChildPath "diskinfo.ps1"
 $DiskInfo = & $MyDiskInfo
 
-<#
 if($PSVersionTable.OS -match "Windows"){
     $OS = $PSVersionTable.OS
 } else {
@@ -18,11 +17,10 @@ if($PSVersionTable.OS -match "Windows"){
         $OS = $PSVersionTable.OS
     }
 }
-#>
 
 $Body = @{
     Name = $(hostname)
-    OS = $($PSVersionTable.OS)
+    OS = $OS
     LastBoot = $(
         if($PSVersionTable.OS -match 'Windows'){
             $((Get-Date).AddDays(-$((uptime).TotalDays)).ToUniversalTime() | Get-Date -Format s)
