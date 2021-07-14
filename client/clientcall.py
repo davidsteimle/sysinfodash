@@ -21,7 +21,6 @@ body = {
 
 body['name'] = str(os.popen('hostname').read()[:-1])
 myos = os.popen("grep '^PRETTY_NAME' /etc/os-release").read()[:-1]
-#print(myos)
 match = re.search('(?P<myname>.*)=(?P<myvalue>.*)', myos)
 myos = match.group('myvalue')
 myos = myos.replace('"','')
@@ -39,7 +38,6 @@ uptimereplace = uptimereplace.replace("week","weeks",1)
 uptimereplace = uptimereplace.replace("day","days",1)
 uptimereplace = uptimereplace.replace("minute","minutes",1)
 uptimelist = uptimereplace.split(",")
-# print(uptimelist)
 uptimedict = {
     'months': 0,
     'weeks': 0,
@@ -58,13 +56,8 @@ uptimetotalminutes += int(uptimedict['days']) * 24 * 60
 uptimetotalminutes += int(uptimedict['weeks']) * 7 * 24 * 60
 uptimetotalminutes += int(uptimedict['months']) * 30 * 24 * 60
 
-#print(uptimedict)
-#print(uptimetotalminutes)
-
 rightnow = datetime.now(timezone.utc)
-#print(rightnow)
 lastboot = rightnow - timedelta(minutes = uptimetotalminutes)
-#print(lastboot)
 
 body['lastboot'] = str(lastboot)
 
@@ -76,12 +69,10 @@ matches = re.finditer(regex, test_str, re.MULTILINE)
 
 for matchNum, match in enumerate(matches, start=1):
 
-#    print ("Match {matchNum} was found at {start}-{end}: {match}".format(matchNum = matchNum, start = match.start(), end = match.end(), match = match.group()))
 
     for groupNum in range(0, len(match.groups())):
         groupNum = groupNum + 1
 
-#        print ("Group {groupNum} found at {start}-{end}: {group}".format(groupNum = groupNum, start = match.start(groupNum), end = match.end(groupNum), group = match.group(groupNum)))
 
 def gb_conv(x):
     gbconv = 1048576
@@ -89,13 +80,13 @@ def gb_conv(x):
     result = (f'{result:.1f}')
     return result
 
-#body = {
-#body['filesystem'] = match.group(1),
 body['disksize'] = match.group(2)
+disksize = body['disksize']
 mytemp = int(body['disksize'])
 mygig = gb_conv(mytemp)
 body['disksize'] = mygig
 body['diskused'] = match.group(3)
+diskused = body['diskused']
 mytemp = int(body['diskused'])
 mygig = gb_conv(mytemp)
 body['diskused'] = mygig
@@ -103,17 +94,10 @@ body['diskavail'] = match.group(4)
 mytemp = int(body['diskavail'])
 mygig = gb_conv(mytemp)
 body['diskavail'] = mygig
-body['diskusedper'] = (match.group(5)).replace("%","")
+diskusedper = (int(diskused) * 100) / int(disksize)
+diskusedper = (f'{diskusedper:.1f}')
+body['diskusedper'] = diskusedper
 body['diskmount'] = match.group(6)
-#}
 
-
-#print(body)
 bodyjson = json.dumps(body)
 print(bodyjson)
-
-#r = requests.put('https://davidsteimle.net:6000/api/sysinfo', data=body)
-
-#print(r)
-
-#print(r.content)
