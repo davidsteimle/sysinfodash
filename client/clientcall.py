@@ -84,7 +84,7 @@ for matchNum, match in enumerate(matches, start=1):
 #        print ("Group {groupNum} found at {start}-{end}: {group}".format(groupNum = groupNum, start = match.start(groupNum), end = match.end(groupNum), group = match.group(groupNum)))
 
 #body = {
-body['filesystem'] = match.group(1),
+gbconv = 1048576
 body['disksize'] = match.group(2),
 body['diskused'] = match.group(3),
 body['diskavail'] = match.group(4),
