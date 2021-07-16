@@ -1,9 +1,8 @@
-FROM mcr.microsoft.com/powershell:latest
+FROM ubuntu:latest
 
-SHELL ["pwsh", "-Command"]
-
-RUN Install-Module UniversalDashboard.Community -AcceptLicense -Force
-RUN Install-Module PSSQLite -Force
+RUN apt install nodejs -y
+RUN apt install npm -y
+RUN npm install sqlite3 -y
 
 COPY dash.ps1 dash.ps1
 
